@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-import mnist_loader
+import data_loader
 
 import numpy as np
 from PIL import Image
@@ -13,7 +13,7 @@ from torch.autograd import Variable
 from torch.utils.data import Dataset
 
 # Training settings
-n = 0 # use RMNIST/n
+n = 1 # use RMNIST/n
 batch_size = 10
 if n > 0: epochs = 2000/n
 else: epochs = 40
@@ -23,6 +23,7 @@ momentum = 0.0
 mean_data_init = 0.1
 sd_data_init = 0.25
 seed = 1
+expanded=True
 
 transform = transforms.Compose([
     transforms.ToTensor(),
@@ -32,10 +33,10 @@ torch.manual_seed(seed)
 
 class RMNIST(Dataset):
 
-    def __init__(self, n=0, train=True, transform=None):
+    def __init__(self, n=0, train=True, transform=None, expanded=False):
         self.n = n
         self.transform = transform
-        td, vd, ts = mnist_loader.load_data(n)
+        td, vd, ts = data_loader.load_data(n, expanded=expanded)
         if train: self.data = td
         else: self.data = vd
         
@@ -52,12 +53,12 @@ class RMNIST(Dataset):
         value = self.data[1][idx]
         return (img, value)
 
-train_dataset = RMNIST(n, train=True, transform=transform)
+train_dataset = RMNIST(n, train=True, transform=transform, expanded=expanded)
 train_loader = torch.utils.data.DataLoader(
     train_dataset, batch_size=batch_size, shuffle=True)
 training_data = list(train_loader)
 
-validation_dataset = RMNIST(n, train=False, transform=transform)
+validation_dataset = RMNIST(n, train=False, transform=transform, expanded=expanded)
 validation_loader = torch.utils.data.DataLoader(
     validation_dataset, batch_size=1000, shuffle=True)
 validation_data = list(validation_loader)

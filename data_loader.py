@@ -36,8 +36,9 @@ def load_data(n=0, expanded=False):
     That's done in the wrapper function ``load_data_wrapper()``, see
     below.
     """
-    if n==0: name = "data/mnist.pkl.gz"
-    else: name = "data/rmnist_"+str(n)+".pkl.gz"
+    if expanded: name = "data/rmnist_expanded_{}.pkl.gz".format(n)
+    elif n==0: name = "data/mnist.pkl.gz"
+    else: name = "data/rmnist_{}.pkl.gz".format(n)
     f = gzip.open(name, 'rb')
     training_data, validation_data, test_data = cPickle.load(f)
     f.close()
