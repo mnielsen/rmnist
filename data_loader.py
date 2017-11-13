@@ -17,7 +17,7 @@ random.seed(619) # use a standard seed to make repeatable
 # Third-party libraries
 import numpy as np
 
-def load_data(n=10, expanded=False, abstract=False):
+def load_data(n=0, expanded=False, abstract=False):
     """Return the RMNIST/n data as a tuple containing the training data,
     the validation data, and the test data.  Note that n=0 corresponds
     to the MNIST data set, of 50,000 training images, 10,000
