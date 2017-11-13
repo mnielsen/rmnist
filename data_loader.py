@@ -13,7 +13,7 @@ import gzip
 # Third-party libraries
 import numpy as np
 
-def load_data(n=0, expanded=False):
+def load_data(n=0, expanded=False, abstract=False):
     """Return the MNIST data as a tuple containing the training data,
     the validation data, and the test data.
 
@@ -37,8 +37,9 @@ def load_data(n=0, expanded=False):
     below.
     """
     if expanded: name = "data/rmnist_expanded_{}.pkl.gz".format(n)
-    elif n==0: name = "data/mnist.pkl.gz"
-    else: name = "data/rmnist_{}.pkl.gz".format(n)
+    if abstract: name = "data/rmnist_abstract_features_{}.pkl.gz".format(n)
+    if n==0: name = "data/mnist.pkl.gz"
+    if (not expanded and not abstract and n > 0): name = "data/rmnist_{}.pkl.gz".format(n)
     f = gzip.open(name, 'rb')
     training_data, validation_data, test_data = cPickle.load(f)
     f.close()
@@ -65,6 +66,7 @@ def make_training_subset(n=10):
     f = gzip.open('data/rmnist_'+str(n)+'.pkl.gz', 'wb')
     cPickle.dump((td_prime, vd, ts), f)
     f.close()
+
 
 
 

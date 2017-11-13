@@ -1,6 +1,12 @@
+"""baselines
+~~~~~~~~~~~~
+
+Simple baselines for RMNIST.
+"""
+
 #### Libraries
 # My libraries
-import mnist_loader 
+import data_loader 
 
 # Third-party libraries
 import sklearn
@@ -16,14 +22,14 @@ def all_baselines():
         baselines(n)
         
 def baselines(n):
-    td, vd, ts = mnist_loader.load_data(n)
+    td, vd, ts = data_loader.load_data(n)
     classifiers = [
-        #sklearn.svm.SVC(C=1000),
-        #sklearn.svm.SVC(kernel="linear", C=0.1),
-        #sklearn.neighbors.KNeighborsClassifier(1),
+        sklearn.svm.SVC(C=1000),
+        sklearn.svm.SVC(kernel="linear", C=0.1),
+        sklearn.neighbors.KNeighborsClassifier(1),
         sklearn.tree.DecisionTreeClassifier(),
-        #sklearn.ensemble.RandomForestClassifier(max_depth=10, n_estimators=500, max_features=1),
-        #sklearn.neural_network.MLPClassifier(alpha=1, hidden_layer_sizes=(500, 100))
+        sklearn.ensemble.RandomForestClassifier(max_depth=10, n_estimators=500, max_features=1),
+        sklearn.neural_network.MLPClassifier(alpha=1, hidden_layer_sizes=(500, 100))
     ]
     for clf in classifiers:
         clf.fit(td[0], td[1])
