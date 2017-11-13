@@ -67,9 +67,3 @@ if __name__ == "__main__":
     make_rmnist(1)
     make_rmnist(5)
     make_rmnist(10)
-
-
-
-
-
-
