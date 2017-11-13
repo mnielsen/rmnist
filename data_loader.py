@@ -2,7 +2,8 @@
 ~~~~~~~~~~~~~~
 
 Load the MNIST and RMNIST image data. Can also be used to generate
-RMNIST data sets.
+RMNIST data sets. When run from the command line the program generates
+RMNIST/1, RMNIST/5, and RMNIST/10.
 
 """
 
