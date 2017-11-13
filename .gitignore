@@ -1,3 +1,4 @@
 *~
 *.org
 *.pyc
+data/rmnist*
