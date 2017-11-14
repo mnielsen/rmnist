@@ -1,7 +1,7 @@
 """baselines
 ~~~~~~~~~~~~
 
-Simple baselines for RMNIST.
+Simple baselines for RMNIST, using sklearn.
 """
 
 #### Libraries
@@ -18,7 +18,7 @@ import sklearn.neural_network
 
 def all_baselines():
     for n in [1, 5, 10, 0]:
-        print "\n\nUsing RMNIST/"+str(n)
+        print "\n\nUsing RMNIST/{}".format(n)
         baselines(n)
         
 def baselines(n):
@@ -33,8 +33,7 @@ def baselines(n):
     ]
     for clf in classifiers:
         clf.fit(td[0], td[1])
-        print "\n\n"+str(clf)
-        print round(clf.score(vd[0], vd[1])*100, 2)
+        print "\n{}: {}".format(type(clf).__name__, round(clf.score(vd[0], vd[1])*100, 2))
 
 if __name__ == "__main__":
     all_baselines()

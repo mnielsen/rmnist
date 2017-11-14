@@ -1,4 +1,4 @@
 *~
 *.org
 *.pyc
-data/rmnist*
+data/rmnist*.pkl.gz
