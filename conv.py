@@ -1,7 +1,17 @@
+"""conv.py
+~~~~~~~~~~
+
+A simple convolutional network for the RMNIST data sets.  Adapted from
+code in the pytorch documentation:
+http://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html#sphx-glr-beginner-blitz-cifar10-tutorial-py
+
+"""
+
 from __future__ import print_function
 
 import data_loader
 
+# Third-party libraries
 import numpy as np
 from PIL import Image
 import torch
@@ -12,24 +22,23 @@ from torchvision import datasets, transforms
 from torch.autograd import Variable
 from torch.utils.data import Dataset
 
-# Training settings
+# Configuration
 n = 1 # use RMNIST/n
+expanded = False # Whether or not to use expanded RMNIST training data
+if n == 0: epochs = 40
+else: epochs = 2000/n
+if n == 0: lr = 0.01 # We will decrease this by 20% every 10 epochs
+else: lr = 0.1 
 batch_size = 10
-if n > 0: epochs = 2000/n
-else: epochs = 40
-if n > 0: lr = 0.1
-else: lr = 0.01
 momentum = 0.0
 mean_data_init = 0.1
 sd_data_init = 0.25
 seed = 1
-expanded=True
-
+torch.manual_seed(seed)
 transform = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize((mean_data_init,), (sd_data_init,))
 ])
-torch.manual_seed(seed)
 
 class RMNIST(Dataset):
 
@@ -48,10 +57,9 @@ class RMNIST(Dataset):
         img = (data*256)
         img = img.reshape(28, 28)
         img = Image.fromarray(np.uint8(img))
-        if self.transform:
-            img = self.transform(img)
-        value = self.data[1][idx]
-        return (img, value)
+        if self.transform: img = self.transform(img)
+        label = self.data[1][idx]
+        return (img, label)
 
 train_dataset = RMNIST(n, train=True, transform=transform, expanded=expanded)
 train_loader = torch.utils.data.DataLoader(
@@ -60,7 +68,7 @@ training_data = list(train_loader)
 
 validation_dataset = RMNIST(n, train=False, transform=transform, expanded=expanded)
 validation_loader = torch.utils.data.DataLoader(
-    validation_dataset, batch_size=1000, shuffle=True)
+    validation_dataset, batch_size=100, shuffle=True)
 validation_data = list(validation_loader)
 
 class Net(nn.Module):
@@ -84,10 +92,9 @@ class Net(nn.Module):
 
 model = Net()
 
-optimizer = optim.SGD(model.parameters(), lr=lr, momentum=momentum)
-
 def train(epoch):
-    global lr, optimizer
+    if epoch % 10 == 0: print('Training epoch: {}'.format(epoch))
+    optimizer = optim.SGD(model.parameters(), lr=lr**(epoch/10+1), momentum=momentum)
     model.train()
     for batch_idx, (data, target) in enumerate(training_data):
         data, target = Variable(data), Variable(target)
@@ -96,10 +103,6 @@ def train(epoch):
         loss = F.nll_loss(output, target)
         loss.backward()
         optimizer.step()
-    if epoch % 10 == 0:
-        print('Training epoch: {}'.format(epoch))
-        lr *= 0.8
-        optimizer = optim.SGD(model.parameters(), lr=lr, momentum=momentum)
 
 def accuracy():
     model.eval()
@@ -120,3 +123,6 @@ def accuracy():
 for epoch in range(1, epochs + 1):
     train(epoch)
     accuracy()
+
+
+
