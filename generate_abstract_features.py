@@ -27,6 +27,9 @@ from torch.utils.data import Dataset
 from torchvision import datasets, models, transforms
 
 
+# Configuration: use expanded training data or not
+expanded = False
+
 # Define the truncated model
 net = models.resnet18(pretrained=True)
 for param in net.parameters():
@@ -82,10 +85,12 @@ data_transform = transforms.Compose(
     ])
 data_loader_val = torch.utils.data.DataLoader(
     RMNIST(10, train=False, transform=data_transform), batch_size=100)
+data_val = list(data_loader_val)
 print("\nComputing features for validation data")
-for j in range(100):
+
+for j in range(len(data_val)):
+    inputs, labels = data_val[j]
     print("Computing features for batch {} of 100".format(j))
-    inputs, labels = next(iter(data_loader_val))
     inputs, labels = Variable(inputs), Variable(labels)
     outputs = forward_partial(net, inputs)
     if j == 0:
@@ -97,21 +102,27 @@ for j in range(100):
         )
 
 # Compute the abstract features for the RMNIST training data
-for n in [1, 5, 10]:
+for n in [1, 5, 10, 0]:
     print("\nComputing features for n = {}".format(n))
-    data_loader_train = torch.utils.data.DataLoader(
-        RMNIST(n, transform=data_transform), batch_size=n*10)
     # Do everything in one batch
+    if not expanded: batch_size = n*10
+    else: batch_size = 9*n*10
+    data_loader_train = torch.utils.data.DataLoader(
+        RMNIST(n, transform=data_transform, expanded=expanded),
+        batch_size=batch_size)
     inputs, labels = next(iter(data_loader_train))
     inputs, labels = Variable(inputs), Variable(labels)
     outputs = forward_partial(net, inputs)
     td2 = (outputs.data.numpy(), labels.data.numpy())
-    f = gzip.open("data/rmnist_abstract_features_{}.pkl.gz".format(n), 'wb')
+    if (expanded and n == 0):
+        name = "data/mnist_abstract_features_expanded.pkl.gz"
+    if (expanded and n > 0):
+        name = "data/rmnist_abstract_features_expanded_{}.pkl.gz".format(n)
+    if (not expanded and n == 0):
+        name = "data/mnist_abstract_features.pkl.gz"
+    if (not expanded and n > 0):
+        name = "data/rmnist_abstract_features_{}.pkl.gz".format(n)
+    f = gzip.open(name, 'wb')
     cPickle.dump((td2, vd2, (0,0)), f)
     f.close()
-
-
-
-
-
 

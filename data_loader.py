@@ -34,12 +34,25 @@ def load_data(n=0, expanded=False, abstract=False):
     generate_abstrat_feature.py.
 
     """
-    if expanded and n > 0: name = "data/rmnist_expanded_{}.pkl.gz".format(n)
-    if expanded and n == 0: name = "data/mnist_expanded.pkl.gz"
-    if abstract: name = "data/rmnist_abstract_features_{}.pkl.gz".format(n)
-    if not expanded and n==0: name = "data/mnist.pkl.gz"
-    if (not expanded and not abstract and n > 0):
-        name = "data/rmnist_{}.pkl.gz".format(n)
+    if not abstract:
+        if not expanded and n==0:
+            name = "data/mnist.pkl.gz"
+        if not expanded and n > 0:
+            name = "data/rmnist_{}.pkl.gz".format(n)
+        if expanded and n == 0:
+            name = "data/mnist_expanded.pkl.gz"
+        if expanded and n > 0:
+            name = "data/rmnist_expanded_{}.pkl.gz".format(n)
+    if abstract:
+        if not expanded and n == 0:
+            name = "data/mnist_abstract_features.pkl.gz"
+        if not expanded and n > 0:
+            name = "data/rmnist_abstract_features_{}.pkl.gz".format(n)
+        if expanded and n == 0:
+            raise Exception(
+                "No support for expanded full MNIST abstract features")
+        if expanded and n > 0:
+            name = "data/rmnist_abstract_features_expanded_{}.pkl.gz".format(n)
     f = gzip.open(name, 'rb')
     training_data, validation_data, test_data = cPickle.load(f)
     f.close()
