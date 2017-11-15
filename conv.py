@@ -23,12 +23,15 @@ from torch.autograd import Variable
 from torch.utils.data import Dataset
 
 # Configuration
-n = 1 # use RMNIST/n
-expanded = False # Whether or not to use expanded RMNIST training data
-if n == 0: epochs = 40
-else: epochs = 2000/n
-if n == 0: lr = 0.01 # We will decrease this by 20% every 10 epochs
-else: lr = 0.1 
+n = 0 # use RMNIST/n
+expanded = True # Whether or not to use expanded RMNIST training data
+if n == 0: epochs = 100
+if n == 1: epochs = 500
+if n == 5: epochs = 400
+if n == 10: epochs = 200
+# We decrease the learning rate by 20% every 10 epochs
+if n == 0: lr = 0.01
+else: lr = 0.1
 batch_size = 10
 momentum = 0.0
 mean_data_init = 0.1
@@ -93,8 +96,7 @@ class Net(nn.Module):
 model = Net()
 
 def train(epoch):
-    if epoch % 10 == 0: print('Training epoch: {}'.format(epoch))
-    optimizer = optim.SGD(model.parameters(), lr=lr**(epoch/10+1), momentum=momentum)
+    optimizer = optim.SGD(model.parameters(), lr=lr*((0.8)**(epoch/10+1)), momentum=momentum)
     model.train()
     for batch_idx, (data, target) in enumerate(training_data):
         data, target = Variable(data), Variable(target)
@@ -103,8 +105,11 @@ def train(epoch):
         loss = F.nll_loss(output, target)
         loss.backward()
         optimizer.step()
+    if epoch % 10 == 0: print('Training epoch: {}'.format(epoch))
 
 def accuracy():
+    if (n != 0) and (epoch % 10 != 0):
+        return
     model.eval()
     validation_loss = 0
     correct = 0
@@ -115,9 +120,8 @@ def accuracy():
         pred = output.data.max(1, keepdim=True)[1]
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
     validation_loss /= 10000
-    if epoch % 10 == 0:
-        print('Validation set: average loss: {:.4f}, accuracy: {}/{} ({:.0f}%)\n'.format(
-            validation_loss, correct, 10000, 100. * correct / 10000))
+    print('Validation set: average loss: {:.4f}, accuracy: {}/{} ({:.0f}%)\n'.format(
+        validation_loss, correct, 10000, 100. * correct / 10000))
 
 
 for epoch in range(1, epochs + 1):

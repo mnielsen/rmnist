@@ -2,7 +2,7 @@
 ~~~~~~~~~~~~~~~~~~~
 
 Take the RMNIST training images, and create expanded sets of training
-images, by displacing each training image in a 5 x 5 region.  Save the
+images, by displacing each training image in a 3 x 3 region.  Save the
 resulting file to ../data/rmnist_expanded_n.pkl.gz.
 
 """
@@ -10,6 +10,7 @@ resulting file to ../data/rmnist_expanded_n.pkl.gz.
 from __future__ import print_function
 
 #### Libraries
+import data_loader
 
 # Standard library
 import cPickle
@@ -22,7 +23,6 @@ import numpy as np
 
 print("Expanding the RMNIST training sets")
 
-sizes = [1, 5, 10]
 
 def shift(image, d, axis):
     if d == 0: return image
@@ -41,29 +41,27 @@ def shift(image, d, axis):
         if d == -2: new_img[:, 26] = np.zeros(28)
     return new_img
 
+sizes = [1, 5, 10, 0]
 for n in sizes:
     print("\n\nExpanding RMNIST/{}".format(n))
-    #if os.path.exists("data/rmnist_expanded_{}.pkl.gz".format(n)):
-    #    print("The expanded training set already exists.  Exiting.")
-    #    continue
-    f = gzip.open("data/rmnist_{}.pkl.gz".format(n), 'rb')
-    training_data, validation_data, test_data = cPickle.load(f)
-    f.close()
+    td, vd, ts = data_loader.load_data(n)
     expanded_training_pairs = []
     j = 0 # counter
-    for x, y in zip(training_data[0], training_data[1]):
+    for x, y in zip(td[0], td[1]):
         j += 1
         if j % 10 == 0: print("Expanding image number", j)
         image = np.reshape(x, (28, 28))
-        for dx in [2, 1, 0, -1, 2]:
-            for dy in [2, 1, 0, -1, 2]:
+        for dx in [1, 0, -1]:
+            for dy in [1, 0, -1]:
                 expanded_training_pairs.append(
                     (np.reshape(shift(shift(image, dx, 0), dy, 1), 784), y))
     random.shuffle(expanded_training_pairs)
     expanded_training_data = [list(d) for d in zip(*expanded_training_pairs)]
     print("Saving expanded data.")
-    f = gzip.open("data/rmnist_expanded_{}.pkl.gz".format(n), "w")
-    cPickle.dump((expanded_training_data, validation_data, test_data), f)
+    if n == 0: name = "data/mnist_expanded.pkl.gz"
+    if n > 0: name = "data/rmnist_expanded_{}.pkl.gz".format(n)
+    f = gzip.open(name, "w")
+    cPickle.dump((expanded_training_data, vd, ts), f)
     f.close()
 
 
