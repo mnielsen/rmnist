@@ -102,7 +102,7 @@ for j in range(len(data_val)):
         )
 
 # Compute the abstract features for the RMNIST training data
-for n in [1, 5, 10, 0]:
+for n in [1, 5, 10]:
     print("\nComputing features for n = {}".format(n))
     # Do everything in one batch
     if not expanded: batch_size = n*10
@@ -114,13 +114,9 @@ for n in [1, 5, 10, 0]:
     inputs, labels = Variable(inputs), Variable(labels)
     outputs = forward_partial(net, inputs)
     td2 = (outputs.data.numpy(), labels.data.numpy())
-    if (expanded and n == 0):
-        name = "data/mnist_abstract_features_expanded.pkl.gz"
-    if (expanded and n > 0):
+    if expanded:
         name = "data/rmnist_abstract_features_expanded_{}.pkl.gz".format(n)
-    if (not expanded and n == 0):
-        name = "data/mnist_abstract_features.pkl.gz"
-    if (not expanded and n > 0):
+    else:
         name = "data/rmnist_abstract_features_{}.pkl.gz".format(n)
     f = gzip.open(name, 'wb')
     cPickle.dump((td2, vd2, (0,0)), f)
