@@ -1,5 +1,4 @@
 *~
 *.org
 *.pyc
-data/rmnist*.pkl.gz
 data/mnist_expanded.pkl.gz
