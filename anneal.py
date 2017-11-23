@@ -22,6 +22,8 @@ from torchvision import datasets, transforms
 from torch.autograd import Variable
 from torch.utils.data import Dataset
 
+use_gpu = torch.cuda.is_available()
+
 # Configuration
 n = 10 # use RMNIST/n
 expanded = True # Whether or not to use expanded RMNIST training data
@@ -146,7 +148,10 @@ def train(epoch, model):
     optimizer = optim.SGD(model.parameters(), lr=params["lr"]*(0.8**(epoch/10+1)), momentum=momentum, weight_decay=params["weight_decay"])
     model.train()
     for batch_idx, (data, target) in enumerate(training_data):
-        data, target = Variable(data), Variable(target)
+        if use_gpu:
+            data, target = Variable(data.cuda()), Variable(target.cuda())
+        else:
+            data, target = Variable(data), Variable(target)
         optimizer.zero_grad()
         output = model(data)
         loss = F.nll_loss(output, target)
@@ -158,7 +163,10 @@ def evaluate(model):
     validation_loss = 0
     accuracy = 0
     for data, target in validation_data:
-        data, target = Variable(data, volatile=True), Variable(target)
+        if use_gpu:
+            data, target = Variable(data.cuda(), volatile=True), Variable(target.cuda())
+        else:
+            data, target = Variable(data, volatile=True), Variable(target)
         output = model(data)
         validation_loss += F.nll_loss(output, target, size_average=False).data[0]
         pred = output.data.max(1, keepdim=True)[1]
@@ -171,14 +179,20 @@ def ensemble_accuracy(models):
         model.eval()
     accuracy = 0
     for data, target in validation_data:
-        data, target = Variable(data, volatile=True), Variable(target)
+        if use_gpu:
+            data, target = Variable(data.cuda(), volatile=True), Variable(target.cuda())
+        else:
+            data, target = Variable(data, volatile=True), Variable(target)
         outputs = [model(data) for model in models]
         pred = sum(output.data for output in outputs).max(1, keepdim=True)[1]
         accuracy += pred.eq(target.data.view_as(pred)).cpu().sum()
     return accuracy
 
 def run():
-    models = [Net(F.relu, params) for j in range(params["ensemble_size"])]
+    if use_gpu:
+        models = [Net(F.relu, params).cuda() for j in range(params["ensemble_size"])]
+    else:
+        models = [Net(F.relu, params) for j in range(params["ensemble_size"])]
     for j, model in enumerate(models):
         print("Training model: {}".format(j))
         for epoch in range(1, epochs + 1):

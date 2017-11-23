@@ -1,6 +1,6 @@
 # Configuration information for running on Google Compute Cloud. Part
 # II.
-conda install pytorch torchvision cuda80 -c soumith
-conda install ipython
-conda install matplotlib
+conda install -y pytorch torchvision cuda80 -c soumith
+conda install -y ipython
+conda install -y matplotlib
 
