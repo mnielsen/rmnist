@@ -1,5 +1,4 @@
-# Configuration information for running on Google Compute Cloud. Part
-# I. SSH session then needs to be restarted, and config2.sh run.
+# Configuration information for running on Google Compute Cloud.
 curl -O http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_8.0.61-1_amd64.deb
 dpkg -i ./cuda-repo-ubuntu1604_8.0.61-1_amd64.deb
 sudo apt-get update
@@ -19,7 +18,4 @@ conda upgrade -y --all
 
 # pytorch, ipython, matplotlib
 conda install -y pytorch torchvision cuda80 -c soumith
-
-#wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh
-#bash Miniconda3-latest-Linux-x86_64.sh
 
