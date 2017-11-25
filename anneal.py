@@ -32,7 +32,7 @@ if n == 1: epochs = 500
 if n == 5: epochs = 400
 if n == 10: epochs = 200
 # We decrease the learning rate by 20% every 10 epochs
-batch_size = 128
+batch_size = 64
 momentum = 0.0
 mean_data_init = 0.1
 sd_data_init = 0.25
@@ -205,13 +205,13 @@ def run():
 def hash_dict(d):
     """Construct a hash of the dict d. A problem with this kind of hashing
     is when the values are floats. To solve this problem we
-    essentially hash to 6 significant digits, by multiplying by 10**6
+    essentially hash to 8 significant digits, by multiplying by 10**8
     and then rounding to an integer.
     """
     l = []
     for k, v in d.items():
         if type(v) == float:
-            l.append((k, round(v*(10**6))))
+            l.append((k, round(v*(10**8))))
         else:
             l.append((k, v))
     return hash(frozenset(l))
