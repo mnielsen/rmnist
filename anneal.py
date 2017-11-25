@@ -32,7 +32,7 @@ if n == 1: epochs = 500
 if n == 5: epochs = 400
 if n == 10: epochs = 200
 # We decrease the learning rate by 20% every 10 epochs
-batch_size = 10
+batch_size = 128
 momentum = 0.0
 mean_data_init = 0.1
 sd_data_init = 0.25

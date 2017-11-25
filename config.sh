@@ -1,6 +1,6 @@
 # Configuration information for running on Google Compute Cloud.
 curl -O http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_8.0.61-1_amd64.deb
-dpkg -i ./cuda-repo-ubuntu1604_8.0.61-1_amd64.deb
+sudo dpkg -i ./cuda-repo-ubuntu1604_8.0.61-1_amd64.deb
 sudo apt-get update
 sudo apt-get install cuda-8-0 -y
 
@@ -19,7 +19,15 @@ conda upgrade -y --all
 # pytorch, ipython, matplotlib
 #conda create -n myenv python=2.7
 #source activate myenv
-conda install -y pytorch=0.1.12 torchvision cuda80 -c soumith
+conda install -y pytorch torchvision cuda80 -c soumith
 conda install -y matplotlib
 conda install -y ipython
+
+
+
+
+
+
+
+
 
