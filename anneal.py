@@ -225,7 +225,7 @@ def get_value_from_cache(cache, d):
 def dict_in_cache(cache, d):
     return hash_dict(d) in cache
 
-energy_scale = 80
+energy_scale = 50
 cache = {}
 count = 0
 print("\nMove: {}".format(count))
