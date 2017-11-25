@@ -14,12 +14,12 @@ wget "https://repo.continuum.io/archive/Anaconda2-5.0.1-Linux-x86_64.sh" -O "Ana
 bash Anaconda2-5.0.1-Linux-x86_64.sh -b
 echo "export PATH=\"$HOME/anaconda2/bin:\$PATH\"" >> ~/.bashrc
 export PATH="$HOME/anaconda2/bin:$PATH"
+conda upgrade -y --all
 
 # pytorch, ipython, matplotlib
 #conda create -n myenv python=2.7
 #source activate myenv
-conda install -y pytorch torchvision cuda80 -c soumith
+conda install -y pytorch=0.1.12 torchvision cuda80 -c soumith
 conda install -y matplotlib
 conda install -y ipython
-conda upgrade -y --all
 
