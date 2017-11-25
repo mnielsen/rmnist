@@ -234,8 +234,12 @@ accuracy = run()
 best_accuracy = accuracy
 best_params = params
 add_dict_to_cache(cache, params, accuracy)
+keep_going = False # flag to say whether or not the last move resulted
+                   # in an improvement in accuracy, and we should keep
+                   # going
 while True:
-    random_move = random.randint(0, len(moves)-1)
+    if not keep_going:
+        random_move = random.randint(0, len(moves)-1)
     count += 1
     print("\nMove: {}".format(count))
     print("Current accuracy: {}".format(accuracy))
@@ -252,6 +256,7 @@ while True:
         print("Computing from new parameters")
         trial_accuracy = run()
         add_dict_to_cache(cache, trial_params, trial_accuracy)
+    keep_going = (trial_accuracy > accuracy)
     if random.random() < math.exp(-(accuracy-trial_accuracy)/energy_scale):
         print("Move accepted")
         params = trial_params
