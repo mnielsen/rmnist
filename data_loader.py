@@ -7,14 +7,9 @@ RMNIST/1, RMNIST/5, and RMNIST/10.
 
 """
 
-PYTHON3 = True
-
 #### Libraries
 # Standard library
-if PYTHON3:
-    import _pickle as cPickle
-else:
-    import cPickle
+import cPickle
 import gzip
 import random
 
