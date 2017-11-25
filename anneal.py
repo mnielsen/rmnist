@@ -43,7 +43,7 @@ transform = transforms.Compose([
     transforms.Normalize((mean_data_init,), (sd_data_init,))
 ])
 
-params = {"weight_decay": 0.001*(10**0.25), "lr": 0.1*(10**0.25), "nk1": 12, "nk2": 18, "ensemble_size": 5}
+params = {"weight_decay": 0.001*(10**0.25), "lr": 0.1*(10**0.25), "nk1": 14, "nk2": 16, "ensemble_size": 5}
 
 def weight_decay_up(params):
     trial = dict(params)
