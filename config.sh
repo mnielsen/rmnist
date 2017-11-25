@@ -23,6 +23,8 @@ conda install -y pytorch torchvision cuda80 -c soumith
 conda install -y matplotlib
 conda install -y ipython
 
+# emacs
+sudo apt-get install -y emacs24
 
 
 
