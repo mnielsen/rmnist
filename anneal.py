@@ -56,7 +56,7 @@ transform = transforms.Compose([
 # annealed --- performance will usually get better as we make this
 # larger, but it will also extend training time, so the annealing will
 # run slower and slower.
-params = {"weight_decay": 0.001*(10**0.25), "lr": 0.1*(10**0.5), "nk1": 18, "nk2": 42, "ensemble_size": 50}
+params = {"weight_decay": 0.001*(10**0.25), "lr": 0.1*(10**0.5), "nk1": 18, "nk2": 42, "ensemble_size": 200}
 
 # Define the annealing moves
 def weight_decay_up(params):
