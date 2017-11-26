@@ -2,6 +2,8 @@
 ~~~~~~~~~~~~
 
 Do a (modified) simulated anneal to find hyper-parameters for RMNIST.
+Also enables the use of an ensemble of multiple neural nets, which
+together effectively vote for an answer.
 
 """
 
@@ -169,22 +171,6 @@ def train(epoch, model):
         loss.backward()
         optimizer.step()
 
-def evaluate(model):
-    model.eval()
-    validation_loss = 0
-    accuracy = 0
-    for data, target in validation_data:
-        if use_gpu:
-            data, target = Variable(data.cuda(), volatile=True), Variable(target.cuda())
-        else:
-            data, target = Variable(data, volatile=True), Variable(target)
-        output = model(data)
-        validation_loss += F.nll_loss(output, target, size_average=False).data[0]
-        pred = output.data.max(1, keepdim=True)[1]
-        accuracy += pred.eq(target.data.view_as(pred)).cpu().sum()
-    validation_loss /= 10000
-    return (accuracy, validation_loss)
-
 def ensemble_accuracy(models):
     for model in models:
         model.eval()
@@ -209,15 +195,19 @@ def run():
         for epoch in range(1, epochs + 1):
             train(epoch, model)
     accuracy = ensemble_accuracy(models)
-    print('Validation set ensemble accuracy: accuracy: {}/{} ({:.0f}%)'.format(
+    print('Validation set ensemble accuracy: {}/{} ({:.0f}%)'.format(
         accuracy, 10000, 100. * accuracy / 10000))
     return accuracy
 
 def hash_dict(d):
     """Construct a hash of the dict d. A problem with this kind of hashing
-    is when the values are floats. To solve this problem we
-    essentially hash to 8 significant digits, by multiplying by 10**8
-    and then rounding to an integer.
+    is when the values are floats - the imprecision of floating point
+    arithmetic mean that values will be regarded as different which
+    should really be regarded as the same.  To solve this problem we
+    hash to 8 significant digits, by multiplying by 10**8 and then
+    rounding to an integer.  It's an imperfect solution, but works
+    pretty well in practice.
+
     """
     l = []
     for k, v in d.items():
@@ -237,20 +227,20 @@ def dict_in_cache(cache, d):
     return hash_dict(d) in cache
 
 energy_scale = 50
-cache = {}
+cache = {} # To store accuracies for past hyper-parameter configurations
 count = 0
 print("\nMove: {}".format(count))
-print("Initial parameters: {}".format(params))
+print("Initial params: {}".format(params))
 accuracy = run()
 best_accuracy = accuracy
 best_params = params
 add_dict_to_cache(cache, params, accuracy)
 keep_going = False # flag to say whether or not the last move resulted
-                   # in an improvement in accuracy, and we should keep
-                   # going
+                   # in an improvement in accuracy, and we should
+                   # repeat the move.  Not standard in simulated
+                   # annealing.
 while True:
-    if not keep_going:
-        random_move = random.randint(0, len(moves)-1)
+    if not keep_going: random_move = random.randint(0, len(moves)-1)
     count += 1
     print("\nMove: {}".format(count))
     print("Current accuracy: {}".format(accuracy))
@@ -261,7 +251,7 @@ while True:
     if dict_in_cache(cache, trial_params):
         print("Retrieving from cache")
         trial_accuracy = get_value_from_cache(cache, trial_params)
-        print('Validation set: accuracy: {}/{} ({:.0f}%)'.format(
+        print('Validation set ensemble accuracy: {}/{} ({:.0f}%)'.format(
             trial_accuracy, 10000, 100. * trial_accuracy / 10000))
     else:
         print("Computing from new parameters")
