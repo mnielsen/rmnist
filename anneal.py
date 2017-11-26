@@ -1,14 +1,17 @@
 """anneal.py
 ~~~~~~~~~~~~
 
+Do a (modified) simulated anneal to find hyper-parameters for RMNIST.
 
 """
 
+# Standard library
 from __future__ import print_function
 
 import math
 import random
 
+# My library
 import data_loader
 
 # Third-party libraries
@@ -31,7 +34,6 @@ if n == 0: epochs = 100
 if n == 1: epochs = 500
 if n == 5: epochs = 400
 if n == 10: epochs = 200
-# We decrease the learning rate by 20% every 10 epochs
 batch_size = 64
 momentum = 0.0
 mean_data_init = 0.1
@@ -43,8 +45,18 @@ transform = transforms.Compose([
     transforms.Normalize((mean_data_init,), (sd_data_init,))
 ])
 
-params = {"weight_decay": 0.001*(10**0.25), "lr": 0.1*(10**0.25), "nk1": 20, "nk2": 40, "ensemble_size": 5}
+# These are the hyper-parameters that can be annealed.  Note that this
+# set could easily be expanded, this was just for instance.  lr is the
+# learning rate, nk1 is the number of kernels in the first layer, and
+# nk2 the number in the second layer.
+#
+# We will use an ensemble of ensemble_size nets.  This shouldn't be
+# annealed --- performance will usually get better as we make this
+# larger, but it will also extend training time, so the annealing will
+# run slower and slower.
+params = {"weight_decay": 0.001*(10**0.25), "lr": 0.1*(10**0.5), "nk1": 18, "nk2": 42, "ensemble_size": 5}
 
+# Define the annealing moves
 def weight_decay_up(params):
     trial = dict(params)
     trial["weight_decay"] *= 10**0.25
@@ -84,7 +96,7 @@ def k2_down(params):
     trial = dict(params)
     if trial["nk2"] > 2: trial["nk2"] -= 2
     return trial
-    
+
 moves = [weight_decay_up, weight_decay_down, lr_up, lr_down, k1_up, k1_down, k2_up, k2_down]
 
 class RMNIST(Dataset):
@@ -137,7 +149,6 @@ class Net(nn.Module):
     def forward(self, x):
         x = self.activation(F.max_pool2d(self.conv1(x), 2))
         x = self.activation(F.max_pool2d(self.conv2_drop(self.conv2(x)), 2))
-        #x = self.activation(self.conv2_drop(self.conv2(x)))
         x = x.view(-1, self.lin)
         x = self.activation(self.fc1(x))
         x = F.dropout(x, training=self.training)
