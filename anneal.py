@@ -48,9 +48,9 @@ transform = transforms.Compose([
 ])
 
 # These are the hyper-parameters that can be annealed.  Note that this
-# set could easily be expanded, this was just for instance.  lr is the
-# learning rate, nk1 is the number of kernels in the first layer, and
-# nk2 the number in the second layer.
+# set could easily be expanded. lr is the learning rate, nk1 is the
+# number of kernels in the first layer, and nk2 the number in the
+# second layer.
 #
 # We will use an ensemble of ensemble_size nets.  This shouldn't be
 # annealed --- performance will usually get better as we make this
