@@ -56,7 +56,7 @@ transform = transforms.Compose([
 # annealed --- performance will usually get better as we make this
 # larger, but it will also extend training time, so the annealing will
 # run slower and slower.
-params = {"weight_decay": 0.001*(10**0.25), "lr": 0.1*(10**0.5), "nk1": 18, "nk2": 42, "ensemble_size": 200}
+params = {"weight_decay": 0.0001*(10**0.25), "lr": 0.1*(10**0.5), "nk1": 20, "nk2": 42, "ensemble_size": 20}
 
 # Define the annealing moves
 def weight_decay_up(params):
@@ -171,9 +171,30 @@ def train(epoch, model):
         loss.backward()
         optimizer.step()
 
+def accept(model):
+    """Return True if more than 20% of the validation data is being
+    correctly classified. Used to avoid including nets which haven't
+    learnt anything in the ensemble.
+
+    """
+
+    accuracy = 0
+    for data, target in validation_data[:(500/100)]:
+        if use_gpu:
+            data, target = Variable(data.cuda(), volatile=True), Variable(target.cuda())
+        else:
+            data, target = Variable(data, volatile=True), Variable(target)
+        output = model(data)
+        pred = output.data.max(1, keepdim=True)[1]
+        accuracy += pred.eq(target.data.view_as(pred)).cpu().sum()
+    if accuracy < 100: return False
+    else: return True
+    
 def ensemble_accuracy(models):
     for model in models:
         model.eval()
+    models = [model for model in models if accept(model)]
+    print("Number of models used from ensemble: {}".format(len(models)))
     accuracy = 0
     for data, target in validation_data:
         if use_gpu:
@@ -200,6 +221,7 @@ def run():
     return accuracy
 
 def hash_dict(d):
+
     """Construct a hash of the dict d. A problem with this kind of hashing
     is when the values are floats - the imprecision of floating point
     arithmetic mean that values will be regarded as different which
